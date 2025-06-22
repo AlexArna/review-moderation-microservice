@@ -1,12 +1,19 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from enum import Enum
+
+
+class ModerationDecision(str, Enum):
+    accept = "accept"
+    flag = "flag"
+    reject = "reject"
 
 class ReviewRequest(BaseModel):
-    user_id: str
-    business_id: str
-    text: str
+    user_id: str = Field(..., description="ID of the user submitting the review.", example="usr1")
+    business_id: str = Field(..., description="ID of the business being reviewed.", example="bus1")
+    text: str = Field(..., description="The text of the user's review.", example="The food was amazing!")
 
 class ModerationResult(BaseModel):
-    decision: str  # "accept", "flag", "reject"
-    reason: str
-    user_id: str
-    business_id: str
+    decision: ModerationDecision = Field(..., description="Decision on the review.", example="accept")
+    reason: str = Field(..., description="Reason for the decision.", example="Contains profanity")
+    user_id: str = Field(..., description="ID of the user submitting the review.", example="usr1")
+    business_id: str = Field(..., description="ID of the business being reviewed.", example="bus1")
