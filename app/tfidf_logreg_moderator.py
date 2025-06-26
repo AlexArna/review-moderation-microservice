@@ -17,7 +17,7 @@ def build_pipeline():
     """Constructs and returns the ML pipeline."""
     pipeline = Pipeline([
         ('tfidf', TfidfVectorizer(preprocessor=preprocess)),
-        ('clf', LogisticRegression(max_iter=1000, class_weight='balanced'))
+        ('clf', LogisticRegression(max_iter=1000, class_weight='balanced', random_state=40))
     ])
     return pipeline
 
