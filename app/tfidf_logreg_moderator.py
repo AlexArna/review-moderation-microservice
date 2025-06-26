@@ -1,21 +1,12 @@
+from app.text_preprocessing import preprocess
 import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 from joblib import dump
-import nltk
-from nltk.corpus import stopwords
 import matplotlib.pyplot as plt
 
-# Ensure NLTK resources are downloaded
-nltk.download('stopwords')
-STOPWORDS = set(stopwords.words('english'))
-
-def preprocess(text):
-    """Lowercase, remove stopwords, and simple cleaning."""
-    words = [word for word in text.lower().split() if word.isalpha() and word not in STOPWORDS]
-    return ' '.join(words)
 
 def load_data(csv_path):
     """Load labeled reviews from CSV, expects 'text' and 'label' columns."""
@@ -36,7 +27,12 @@ def train_and_evaluate(X_train, y_train, X_val, y_val):
     pipeline.fit(X_train, y_train)
     preds = pipeline.predict(X_val)
     print("Validation set performance:")
-    print(classification_report(y_val, preds))
+    val_report = classification_report(y_val, preds, target_names=["clean", "profanity", "spam"])
+    print(val_report)
+    # Save validation classification report as text file
+    with open("classification_report_val_tfidf_logreg.txt", "w") as f:
+        f.write(val_report)
+    print("Validation classification report saved as classification_report_val_tfidf_logreg.txt")
     labels = ["clean", "profanity", "spam"]
     cm = confusion_matrix(y_val, preds, labels=labels)
     print("Confusion matrix for the Validation set:")
@@ -45,15 +41,20 @@ def train_and_evaluate(X_train, y_train, X_val, y_val):
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
     disp.plot(cmap='Blues')
     plt.show(block=True)
-    plt.savefig('confusion_matrix_val.png')
-    print("Confusion matrix plot saved as confusion_matrix_val.png")
+    plt.savefig('confusion_matrix_val_tfidf_logreg.png')
+    print("Confusion matrix plot saved as confusion_matrix_val_tfidf_logreg.png")
     return pipeline
 
 def test_and_report(model, X_test, y_test):
     """Evaluate the trained model on the test set and print metrics."""
     preds = model.predict(X_test)
     print("Test set performance:")
-    print(classification_report(y_test, preds))
+    test_report = classification_report(y_test, preds, target_names=["clean", "profanity", "spam"])
+    print(test_report)
+    # Save test classification report as text file
+    with open("classification_report_test_tfidf_logreg.txt", "w") as f:
+        f.write(test_report)
+    print("Test classification report saved as classification_report_test_tfidf_logreg.txt")
     labels = ["clean", "profanity", "spam"]
     cm = confusion_matrix(y_test, preds, labels=labels)
     print("Confusion matrix for the Test set:")
@@ -62,8 +63,8 @@ def test_and_report(model, X_test, y_test):
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
     disp.plot(cmap='Blues')
     plt.show(block=True)
-    plt.savefig('confusion_matrix_test.png')
-    print("Confusion matrix plot saved as confusion_matrix_test.png")
+    plt.savefig('confusion_matrix_test_tfidf_logreg.png')
+    print("Confusion matrix plot saved as confusion_matrix_test_tfidf_logreg.png")
 
 def save_model(model, output_path):
     """Save the trained model to disk."""
@@ -83,7 +84,6 @@ def main():
     model = train_and_evaluate(X_train, y_train, X_val, y_val)
     save_model(model, output_path)
     test_and_report(model, X_test, y_test)
-
 
 if __name__ == '__main__':
     main()
