@@ -2,9 +2,11 @@ import transformers
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 import torch
 from torch.utils.data import Dataset
+import matplotlib.pyplot as plt
+
 
 # 1. Load and preprocess data
 train_df = pd.read_csv('merged_train.csv')
@@ -45,7 +47,7 @@ bert_model = AutoModelForSequenceClassification.from_pretrained('huawei-noah/Tin
 
 # 4. Training setup
 training_args = TrainingArguments(
-    output_dir='./results',
+    output_dir='./results_run2',
     num_train_epochs=3,
     per_device_train_batch_size=32,
     per_device_eval_batch_size=64,
@@ -69,7 +71,7 @@ trainer = Trainer(
     args=training_args,
     train_dataset=train_dataset,
     eval_dataset=val_dataset,
-    compute_metrics=None  # We'll do classification_report separately for better formatting
+    compute_metrics=None  # Classification_report done separately for better formatting
 )
 
 # 5. Train
@@ -83,8 +85,23 @@ print(classification_report(y_true, y_pred, target_names=labels))
 print("Confusion matrix:")
 print(confusion_matrix(y_true, y_pred))
 
+# Confusion matrix plot
+cm = confusion_matrix(y_true, y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+disp.plot(cmap='Blues')
+plt.title("Confusion Matrix")
+plt.tight_layout()
+plt.savefig('confusion_matrix_test_tinyBert_2.png')
+plt.show(block=True)
+print("Confusion matrix plot saved as confusion_matrix_test_tinyBert_2.png")
+
+# Save classification report to file
+with open("classification_report_tinyBert_2.txt", "w") as f:
+    f.write(classification_report(y_true, y_pred, target_names=labels))
+print("Classification report saved as classification_report_tinyBert_2.txt")
+
 # 7. Save model and tokenizer
-save_dir = "./tinyBert_moderation_model"
+save_dir = "./tinyBert_moderation_model_run2"
 bert_model.save_pretrained(save_dir)
 tokenizer.save_pretrained(save_dir)
 print(f"Model and tokenizer saved to {save_dir}")
