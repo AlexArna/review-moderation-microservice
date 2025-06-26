@@ -30,7 +30,7 @@ def train_and_evaluate(X_train, y_train, X_val, y_val):
     val_report = classification_report(y_val, preds, target_names=["clean", "profanity", "spam"])
     print(val_report)
     # Save validation classification report as text file
-    with open("classification_report_val_tfidf_logreg.txt", "w") as f:
+    with open("docs/classification_report_val_tfidf_logreg.txt", "w") as f:
         f.write(val_report)
     print("Validation classification report saved as classification_report_val_tfidf_logreg.txt")
     labels = ["clean", "profanity", "spam"]
@@ -41,7 +41,7 @@ def train_and_evaluate(X_train, y_train, X_val, y_val):
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
     disp.plot(cmap='Blues')
     plt.show(block=True)
-    plt.savefig('confusion_matrix_val_tfidf_logreg.png')
+    plt.savefig('docs/confusion_matrix_val_tfidf_logreg.png')
     print("Confusion matrix plot saved as confusion_matrix_val_tfidf_logreg.png")
     return pipeline
 
@@ -52,7 +52,7 @@ def test_and_report(model, X_test, y_test):
     test_report = classification_report(y_test, preds, target_names=["clean", "profanity", "spam"])
     print(test_report)
     # Save test classification report as text file
-    with open("classification_report_test_tfidf_logreg.txt", "w") as f:
+    with open("docs/classification_report_test_tfidf_logreg.txt", "w") as f:
         f.write(test_report)
     print("Test classification report saved as classification_report_test_tfidf_logreg.txt")
     labels = ["clean", "profanity", "spam"]
@@ -63,7 +63,7 @@ def test_and_report(model, X_test, y_test):
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
     disp.plot(cmap='Blues')
     plt.show(block=True)
-    plt.savefig('confusion_matrix_test_tfidf_logreg.png')
+    plt.savefig('docs/confusion_matrix_test_tfidf_logreg.png')
     print("Confusion matrix plot saved as confusion_matrix_test_tfidf_logreg.png")
 
 def save_model(model, output_path):
