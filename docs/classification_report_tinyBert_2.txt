@@ -1,0 +1,9 @@
+              precision    recall  f1-score   support
+
+       clean       0.99      0.90      0.94     57924
+   profanity       0.50      0.92      0.65      6243
+        spam       0.69      0.83      0.76       203
+
+    accuracy                           0.90     64370
+   macro avg       0.73      0.88      0.78     64370
+weighted avg       0.94      0.90      0.91     64370
