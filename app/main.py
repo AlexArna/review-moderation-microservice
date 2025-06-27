@@ -82,3 +82,27 @@ async def submit_review(
 def read_root():
     """Return a welcome message confirming the service is running."""
     return {"message": "Review Moderation Microservice up and running!"}
+
+@app.get("/moderation-events", tags=["Analytics"])
+def list_events(
+    limit: int = Query(100, description="Max events to return"),
+    db: Session = Depends(get_db)
+):
+    """
+    List moderation events for analytics or downstream processing.
+    """
+    events = db.query(ModerationEvent).order_by(ModerationEvent.timestamp.desc()).limit(limit).all()
+    # Convert SQLAlchemy objects to dicts for JSON response
+    return [
+        {
+            "id": e.id,
+            "user_id": e.user_id,
+            "business_id": e.business_id,
+            "review_text": e.review_text,
+            "moderation_result": e.moderation_result,
+            "moderation_reason": e.moderation_reason,
+            "method_used": e.method_used,
+            "timestamp": e.timestamp.isoformat() if e.timestamp else None
+        }
+        for e in events
+    ]
