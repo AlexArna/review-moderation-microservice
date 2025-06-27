@@ -1,9 +1,12 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends
 from app.models import ReviewRequest, ModerationResult
 from app.custom_moderation import moderate_custom
 from app.better_prof_moderation import moderate_better_prof
 from app.tfidf_logreg_moderation import moderate_tfidf_logreg
 from app.tinybert_moderation import moderate_tinybert
+from sqlalchemy.orm import Session
+from app.db_session import get_db
+from app.db_models import ModerationEvent
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -32,7 +35,8 @@ async def submit_review(
         "better_prof", 
         enum=["custom", "better_prof", "ml", "tinybert"], 
         description="Choose 'custom' for custom banned words and spam rules, 'better_prof' for rule-based profanity moderation, 'ml' for machine learning moderation (tf-idf + logistic regression), or 'tinybert' for Transformer-based moderation (TinyBERT)."
-    )
+    ),
+    db: Session = Depends(get_db)
 ):
     """
     Moderate a review using one of several moderation backends:
@@ -55,6 +59,20 @@ async def submit_review(
             result = moderate_tinybert(review)
         else:
             raise HTTPException(status_code=400, detail="Invalid moderation method.")
+
+        # Store the moderation event in the database
+        event = ModerationEvent(
+            user_id=review.user_id,
+            business_id=review.business_id,
+            review_text=review.text,
+            moderation_result=result.result,
+            moderation_reason=result.reason,
+            method_used=method
+        )
+        db.add(event)
+        db.commit()
+        db.refresh(event)
+
     except Exception as e:
         logger.exception("Moderation service error")
         raise HTTPException(status_code=500, detail="Moderation service error.")
