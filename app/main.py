@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session
 from app.db_session import get_db
 from app.db_models import ModerationEvent
 import logging
+from datetime import datetime
+from app.kafka_client import get_kafka_producer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,8 +17,11 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Review Moderation Microservice",
     description="API to moderate reviews for spam and profanity",
-    version="0.3.0"
+    version="0.4.0"
 )
+
+# Initialize the Kafka producer (singleton)
+producer = get_kafka_producer()
 
 @app.post(
     "/reviews",
@@ -72,6 +77,21 @@ async def submit_review(
         db.add(event)
         db.commit()
         db.refresh(event)
+
+        # Publish the moderation event to Kafka
+        kafka_event = {
+            "id": event.id,
+            "user_id": event.user_id,
+            "business_id": event.business_id,
+            "review_text": event.review_text,
+            "moderation_result": event.moderation_result,
+            "moderation_reason": event.moderation_reason,
+            "method_used": event.method_used,
+            # Use event.timestamp if available, otherwise fallback to now
+            "timestamp": (event.timestamp.isoformat() if hasattr(event, "timestamp") and event.timestamp else datetime.utcnow().isoformat())
+        }
+        producer.send("moderation-events", kafka_event)
+        producer.flush()  # For reliability
 
     except Exception as e:
         logger.exception("Moderation service error")
