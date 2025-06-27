@@ -3,7 +3,7 @@ from app.models import ReviewRequest, ModerationResult
 from app.custom_moderation import moderate_custom
 from app.better_prof_moderation import moderate_better_prof
 from app.tfidf_logreg_moderation import moderate_tfidf_logreg
-from app.tinybert_moderation import moderate_tinybert
+from app.tinyBert_moderation import moderate_tinybert
 from sqlalchemy.orm import Session
 from app.db_session import get_db
 from app.db_models import ModerationEvent
@@ -65,8 +65,8 @@ async def submit_review(
             user_id=review.user_id,
             business_id=review.business_id,
             review_text=review.text,
-            moderation_result=result.result,
-            moderation_reason=result.reason,
+            moderation_result=result["decision"],
+            moderation_reason=result["reason"],
             method_used=method
         )
         db.add(event)
