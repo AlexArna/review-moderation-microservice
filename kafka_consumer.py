@@ -17,6 +17,8 @@ def main():
     print("Listening for moderation events...")
     decision_counter = Counter()
     event_count = 0
+    business_counter = Counter()
+    user_counter = Counter()
     for message in consumer:
         try:
             # message.value is already a Python dict due to value_deserializer
@@ -26,6 +28,15 @@ def main():
             # Count moderation results
             result = event.get("moderation_result", "unknown")
             decision_counter[result] += 1
+
+            # Count per business
+            business_id = event.get("business_id", "unknown")
+            business_counter[business_id] += 1
+
+            # Count per user
+            user_id = event.get("user_id", "unknown")
+            user_counter[user_id] += 1
+
             event_count += 1
 
             # Print running stats every 10 events
@@ -33,6 +44,12 @@ def main():
                 print("\n=== Moderation Decision Counts ===")
                 for decision, count in decision_counter.items():
                     print(f"{decision}: {count}")
+                print("=== Counts per Business ===")
+                for business, count in business_counter.items():
+                    print(f"{business}: {count}")
+                print("=== Counts per User ===")
+                for user, count in user_counter.items():
+                    print(f"{user}: {count}")
                 print("==================================\n")
         except Exception as e:
             print(f"Error processing message: {e}")
