@@ -51,6 +51,15 @@ def main():
                 for user, count in user_counter.items():
                     print(f"{user}: {count}")
                 print("==================================\n")
+                # Write stats to JSON
+                stats = {
+                    "decision_counts": dict(decision_counter),
+                    "business_counts": dict(business_counter),
+                    "user_counts": dict(user_counter),
+                    "event_count": event_count
+                }
+                with open("stats.json", "w") as f:
+                    json.dump(stats, f)
         except Exception as e:
             print(f"Error processing message: {e}")
             continue
