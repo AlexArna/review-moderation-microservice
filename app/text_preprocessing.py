@@ -1,8 +1,12 @@
 import nltk
 from nltk.corpus import stopwords
 
-# Ensure NLTK resources are downloaded
-nltk.download('stopwords')
+# Only download NLTK resources if not already downloaded
+try:
+    stopwords.words('english')
+except LookupError:
+    nltk.download('stopwords')
+
 STOPWORDS = set(stopwords.words('english'))
 
 def preprocess(text):
