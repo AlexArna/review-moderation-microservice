@@ -24,6 +24,10 @@ def plot_bar_chart(data, xlabel, ylabel, sort_desc=True):
     if isinstance(data, dict):
         labels = list(data.keys())
         values = list(data.values())
+        # Prevent errors if the data is empty
+        if not labels or not values:
+            st.info("No data to display for this chart.")
+            return
         # Sort by value descending (default)
         if sort_desc:
             sorted_items = sorted(zip(labels, values), key=lambda x: x[1], reverse=True)
@@ -51,6 +55,16 @@ def main():
     cumul_stats = load_stats(cumul_stats_file)
 
     if stats:
+        # Trigger alert if any user submits more than the threshold number of reviews
+        threshold = 5
+        users_over_threshold = [user for user, count in stats["user_counts"].items() if count > threshold]
+        if users_over_threshold:
+            if len(users_over_threshold) == 1:
+                user = users_over_threshold[0]
+                st.warning(f"⚠️ User '{user}' has submitted more than {threshold} reviews in this session ({stats['user_counts'][user]}).")
+            else:
+                users_str = ", ".join([f"{user} ({stats['user_counts'][user]})" for user in users_over_threshold])
+                st.warning(f"⚠️ The following users have submitted more than {threshold} reviews in this session: {users_str}")
         st.header("Number of Reviews by Decision (Session)")
         plot_bar_chart(stats["decision_counts"], xlabel="Decision", ylabel="Number of Reviews")
         st.header("Number of Reviews by Business (Session)")
