@@ -9,7 +9,7 @@ from app.db_session import get_db
 from app.db_models import ModerationEvent
 import logging
 from datetime import datetime
-from app.kafka_client import get_kafka_producer
+import os
 from functools import lru_cache
 
 logging.basicConfig(level=logging.INFO)
@@ -18,13 +18,21 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Review Moderation Microservice",
     description="API to moderate reviews for spam and profanity",
-    version="0.4.0"
+    version="0.5.0"
 )
 
 # Ensures that only one instance of the producer is created (singleton)
 @lru_cache()
 def get_producer():
-    return get_kafka_producer()
+    # Make Kafka optional: skip if DISABLE_KAFKA env var is set to true
+    if os.environ.get("DISABLE_KAFKA", "false").lower() == "true":
+        return None
+    try:
+        from app.kafka_client import get_kafka_producer  # Optional import
+        return get_kafka_producer()
+    except Exception as e:
+        logger.warning(f"Kafka producer unavailable: {e}")
+        return None
 
 @app.post(
     "/reviews",
@@ -82,20 +90,24 @@ async def submit_review(
         db.commit()
         db.refresh(event)
 
-        # Publish the moderation event to Kafka
-        kafka_event = {
-            "id": event.id,
-            "user_id": event.user_id,
-            "business_id": event.business_id,
-            "review_text": event.review_text,
-            "moderation_result": event.moderation_result,
-            "moderation_reason": event.moderation_reason,
-            "method_used": event.method_used,
-            # Use event.timestamp if available, otherwise fallback to now
-            "timestamp": (event.timestamp.isoformat() if hasattr(event, "timestamp") and event.timestamp else datetime.utcnow().isoformat())
-        }
-        producer.send("moderation-events", kafka_event)
-        producer.flush()  # For reliability
+        # Publish the moderation event to Kafka if available
+        if producer is not None:
+            try:
+                kafka_event = {
+                    "id": event.id,
+                    "user_id": event.user_id,
+                    "business_id": event.business_id,
+                    "review_text": event.review_text,
+                    "moderation_result": event.moderation_result,
+                    "moderation_reason": event.moderation_reason,
+                    "method_used": event.method_used,
+                    # Use event.timestamp if available, otherwise fallback to now
+                    "timestamp": (event.timestamp.isoformat() if hasattr(event, "timestamp") and event.timestamp else datetime.utcnow().isoformat())
+                }
+                producer.send("moderation-events", kafka_event)
+                producer.flush()  # For reliability
+            except Exception as e:
+                logger.warning(f"Kafka send failed: {e}")
 
     except Exception as e:
         logger.exception("Moderation service error")
