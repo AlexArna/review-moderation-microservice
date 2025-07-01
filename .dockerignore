@@ -1,0 +1,64 @@
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env
+*.env
+
+# Jupyter notebooks and logs
+*.ipynb
+*.log
+logs/
+
+# Data files (raw and processed, not needed for inference)
+*.csv
+*.json
+*.jsonl
+stats.json
+cumul_stats.json
+moderation_events_export.csv
+
+# Training results, intermediate checkpoints, and outputs
+results/
+results_run2/
+docs/
+*.png
+*.jpg
+*.jpeg
+*.txt
+
+# First run and model checkpoints
+tinyBert_moderation_model/
+tinyBert_moderation_model_run2/checkpoint-*
+
+# Ignore test code and test folders
+tests/
+test_*.py
+*_test.py
+
+# Ignore training scripts, but keep inference scripts
+*_moderator.py
+
+# Editor/OS files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Docker Compose files
+docker-compose.yml
+
+# EXCEPTIONS
+!tinyBert_moderation_model_run2/
+!app/
+!requirements.txt
+!Dockerfile
