@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 import datetime
 
 # Create a base class for all SQLAlchemy models
@@ -21,4 +21,4 @@ class ModerationEvent(Base):
     moderation_result = Column(String) # accept/flag/reject
     moderation_reason = Column(String) # spam, profanity, clean
     method_used = Column(String)
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    timestamp = Column(DateTime, default=lambda: datetime.datetime.now(datetime.UTC))
