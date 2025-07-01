@@ -10,6 +10,7 @@ from app.db_models import ModerationEvent
 import logging
 from datetime import datetime
 from app.kafka_client import get_kafka_producer
+from functools import lru_cache
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -20,8 +21,10 @@ app = FastAPI(
     version="0.4.0"
 )
 
-# Initialize the Kafka producer (singleton)
-producer = get_kafka_producer()
+# Ensures that only one instance of the producer is created (singleton)
+@lru_cache()
+def get_producer():
+    return get_kafka_producer()
 
 @app.post(
     "/reviews",
@@ -41,7 +44,8 @@ async def submit_review(
         enum=["custom", "better_prof", "ml", "tinybert"], 
         description="Choose 'custom' for custom banned words and spam rules, 'better_prof' for rule-based profanity moderation, 'ml' for machine learning moderation (tf-idf + logistic regression), or 'tinybert' for Transformer-based moderation (TinyBERT)."
     ),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    producer=Depends(get_producer)
 ):
     """
     Moderate a review using one of several moderation backends:
