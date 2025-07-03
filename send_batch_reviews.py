@@ -47,7 +47,7 @@ reviews = [
     {
         "user_id": "usr1",
         "business_id": "bus2",
-        "text": "Click this link for a prize: http://spam.com",
+        "text": "This badword1 restaurant was a disaster!",
         "method": "custom"
     },
     {
