@@ -49,17 +49,48 @@ ENV/
 env.bak/
 venv.bak/
 
-# PyCharm
-.idea/
+# Jupyter notebooks and logs
+*.ipynb
+*.log
+logs/
 
-# VS Code
-.vscode/
+# Data files (raw and processed, not needed for inference)
+*.csv
+*.json
+*.jsonl
+stats.json
+cumul_stats.json
+moderation_events_export.csv
 
-# Mac
+# Model files/directories (ignore all, including checkpoints)
+tinyBert_moderation_model/
+tinyBert_moderation_model_run2/
+ml_moderation_model.joblib
+
+# Training results, intermediate checkpoints, and outputs
+results/
+results_run2/
+
+# Database files
+*.db
+*.sqlite3
+
+# Editor/OS files
 .DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # Ignore submodules or old projects if present
 food_data_pipeline/
 
-# Local files
-*.sqlite3
+# Docker Compose override files
+docker-compose.override.yml
+
+# (EXCEPTIONS - keep docs/ and its images/results, tests/, app/, configs, scripts)
+!docs/
+!tests/
+!app/
+!requirements.txt
+!Dockerfile
