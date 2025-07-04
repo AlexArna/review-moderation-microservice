@@ -70,7 +70,7 @@ reviews = [
     }
 ]
 
-base_url = "http://34.38.188.116:8080/reviews" # Using my VM's external API
+base_url = "http://34.38.188.116:8080/reviews" # Using my VM's external IP address
 
 for idx, review in enumerate(reviews, 1):
     method = review.pop("method")
