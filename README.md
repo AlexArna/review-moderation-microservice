@@ -163,14 +163,33 @@ python kafka_consumer.py
 ```
 This will read moderation events from Kafka and update `stats.json`/`cumul_stats.json` for the real-time dashboard.
 
-### 6. Submit a review
-Use `curl` or Swagger UI ([http://localhost:8000/docs](http://localhost:8000/docs)):
+### 6. Submit Reviews
+
+#### 6.1 Submit a Single Review (Manual/API)
+
+You can submit a review via `curl` or Swagger UI ([http://localhost:8000/docs](http://localhost:8000/docs)):
+
 ```bash
 curl -X POST "http://localhost:8000/reviews?method=ml" \
      -H "Content-Type: application/json" \
      -d '{"user_id": "u1", "business_id": "b1", "text": "This place is a scam!"}'
 ```
 - Valid values for `method`: `custom`, `better_prof`, `ml`, `tinybert`
+
+#### 6.2 Submit Batch Reviews (Automated Script)
+
+To simulate real-time user reviews and test the moderation pipeline, use the included [`send_batch_reviews.py`](send_batch_reviews.py) script.
+
+```bash
+python send_batch_reviews.py
+```
+
+- This script sends a batch of sample reviews to your `/reviews` endpoint using different moderation methods.
+- It’s useful for testing moderation logic, database integration, and verifying the end-to-end workflow.
+- Edit the script to change the API address, review content, or submission frequency as needed.
+- There is a 1-second delay between submissions to mimic real user activity.
+
+> **Note:** Make sure the API server is running and the `base_url` in the script matches your deployment (e.g., local, VM, or Cloud Run).
 
 ### 7. List moderation events
 ```bash
@@ -192,20 +211,19 @@ python export_to_csv.py
 
 ## Running with Docker
 
-1. **Build the Docker image:**
-    ```bash
-    docker build -t review-moderation-api:latest .
-    ```
+You can run the API in a Docker container locally for isolated development and testing:
 
-2. **Run the container:**
-    ```bash
-    docker run -p 8080:8080 review-moderation-api:latest
-    ```
-    The API will be available at [http://localhost:8080/docs](http://localhost:8080/docs).
+```bash
+docker build -t review-moderation-api:latest .
+docker run -p 8080:8080 review-moderation-api:latest
+```
+- The API will be available at [http://localhost:8080/docs](http://localhost:8080/docs).
+
+> **Note:** This only runs the API container. For full functionality (Kafka, etc.), use Docker Compose as described above.
 
 ## Deploying to Google Cloud Run
 
-> **Note:** Ensure you have enabled the Artifact Registry and Cloud Run APIs, and configured gcloud for your project.
+> **Note:** Cloud Run runs your app in a managed environment. You build a Docker image (as above), then push it to Google Artifact Registry, and deploy from there.
 
 1. **Create an Artifact Registry repository** (once per project):
     ```bash
