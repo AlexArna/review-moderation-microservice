@@ -24,6 +24,14 @@ Key features and workflow include:
 
 This project demonstrates practical skills in backend and systems engineering, data science, machine learning operations, and real-time analytics, providing a reference architecture for scalable, production-grade content moderation pipelines.
 
+## Demo Video
+
+A demonstration video showing the core features and workflow of the Review Moderation Microservice API is available:
+
+[Download and watch the demo video from the latest release.](https://github.com/AlexArna/review-moderation-microservice/releases/latest)
+
+The video walks through real-time review ingestion, moderation, analytics, and dashboard functionality.
+
 ## Tools and Technologies
 
 - **Python 3**
