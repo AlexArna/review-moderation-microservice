@@ -48,7 +48,7 @@ The video walks through real-time review ingestion, moderation, analytics, and d
 
 ## Data & Model Preparation
 
-The machine learning moderation models in this project were trained using data from both the [Jigsaw Toxic Comment Classification Challenge](https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge) and the [YouTube Spam Collection Dataset](https://www.kaggle.com/datasets/uciml/youtube-spam-collection) (or similar).
+The machine learning moderation models in this project were trained using data from both the [Jigsaw Toxic Comment Classification Challenge](https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge) and the [YouTube Spam Collection Dataset](https://www.kaggle.com/datasets/uciml/youtube-spam-collection).
 
 **These raw datasets are NOT included in the repository due to licensing and size constraints. You must download them manually before running the preprocessing or training scripts.**
 
